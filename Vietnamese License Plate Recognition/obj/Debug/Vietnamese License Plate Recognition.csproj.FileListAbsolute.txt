@@ -1,0 +1,44 @@
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Vietnamese License Plate Recognition.exe.config
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Vietnamese License Plate Recognition.exe
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Vietnamese License Plate Recognition.pdb
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Emgu.CV.UI.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Emgu.CV.UI.GL.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Emgu.CV.World.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\OpenTK.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\OpenTK.GLControl.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\ZedGraph.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Emgu.CV.UI.xml
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Emgu.CV.UI.GL.xml
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Emgu.CV.World.xml
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\OpenTK.xml
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\OpenTK.GLControl.xml
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\ZedGraph.xml
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\de\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\es\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\fr\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\hu\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\it\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\ja\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\pt\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\ru\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\sk\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\sv\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\tr\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\zh-cn\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\zh-tw\ZedGraph.resources.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\obj\Debug\Vietnamese License Plate Recognition.csproj.AssemblyReference.cache
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\obj\Debug\Vietnamese License Plate Recognition.csproj.SuggestedBindingRedirects.cache
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\obj\Debug\Vietnamese_License_Plate_Recognition.Form1.resources
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\obj\Debug\Vietnamese_License_Plate_Recognition.Properties.Resources.resources
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\obj\Debug\Vietnamese License Plate Recognition.csproj.GenerateResource.cache
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\obj\Debug\Vietnamese License Plate Recognition.csproj.CoreCompileInputs.cache
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\obj\Debug\Vietnamese License Plate Recognition.csproj.CopyComplete
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\obj\Debug\Vietnamese License Plate Recognition.exe
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\obj\Debug\Vietnamese License Plate Recognition.pdb
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\x86\leptonica-1.80.0.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\x86\tesseract41.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\x64\leptonica-1.80.0.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\x64\tesseract41.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\Tesseract.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\IronOcr.dll
+C:\Users\Admin\source\repos\Vietnamese License Plate Recognition\Vietnamese License Plate Recognition\bin\Debug\IronOcr.xml
