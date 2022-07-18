@@ -13,13 +13,11 @@ using Emgu.CV.UI;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Util;
 using Tesseract;
-using IronOcr;
 namespace Vietnamese_License_Plate_Recognition
 {
     public partial class Form1 : Form
     {
         List<Image<Bgr, Byte>> PlateImagesList = new List<Image<Bgr, byte>>();
-        List<Rectangle> listRect = new List<Rectangle>();
         public Form1()
         {
             InitializeComponent();
@@ -27,11 +25,9 @@ namespace Vietnamese_License_Plate_Recognition
         public TesseractEngine full_tesseract = new TesseractEngine(@"./data", "eng", EngineMode.Default);
         public TesseractEngine word_tesseract = new TesseractEngine(@"./data", "eng", EngineMode.Default);
         public TesseractEngine num_tesseract = new TesseractEngine(@"./data", "eng", EngineMode.Default);
+       
         private void button1_Click(object sender, EventArgs e)
         {
-            full_tesseract.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-            word_tesseract.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-            num_tesseract.SetVariable("tessedit_char_whitelist", "0123456789");
             // open file dialog   
             OpenFileDialog open = new OpenFileDialog();
             // image filters  
@@ -71,7 +67,7 @@ namespace Vietnamese_License_Plate_Recognition
 
                 foreach (Rectangle plate in plates)
                 {
-                    if (plate.Width > 30 && plate.Width < 250 && plate.Height >10 && plate.Height < 250)
+                    if (plate.Width > 20 && plate.Width < 250 && plate.Height >10 && plate.Height < 250)
                     {
                         image2.Draw(plate, new Bgr(0, 255, 0), 2);
                         imageBox1.Image = image2;
@@ -95,23 +91,16 @@ namespace Vietnamese_License_Plate_Recognition
                 MessageBox.Show(ex.Message);
             }
         }
-        public static string OCR(Bitmap image)
+        public static string OCR(Bitmap image, bool isFull, TesseractEngine full_tesseract, TesseractEngine num_tesseract, TesseractEngine word_tesseract, bool isNum = false)
         {
-            //string ocrtext = "";
-            //using (var engine = new TesseractEngine(@"./data", "eng", EngineMode.Default))
-            //{
-            //    using (var img = PixConverter.ToPix(image))
-            //    {
-            //        using (var page = engine.Process(img))
-            //        {
-            //            ocrtext = page.GetText();
-            //        }
-            //    }
-            //}
-            //return ocrtext;
-            var ocr = new TesseractEngine(@"./data", "eng", EngineMode.Default);
-            var page = ocr.Process(image);
-            return page.GetText();
+            full_tesseract.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789");
+            word_tesseract.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            num_tesseract.SetVariable("tessedit_char_whitelist", "0123456789");
+            TesseractEngine tesseractProcessor = isFull ? full_tesseract : ((isNum) ? num_tesseract : word_tesseract);
+            var page = tesseractProcessor.Process(image, PageSegMode.SingleChar);
+            string text =  page.GetText();
+            page.Dispose();
+            return text;
         }
         public void IdentifyContours(Image<Bgr,byte> colorImage)
         {
@@ -135,14 +124,13 @@ namespace Vietnamese_License_Plate_Recognition
                     if (rect.Width > 30 && rect.Width <150 && rect.Height > 100 && rect.Height < 200 && rect.X > 10 && rect.Y >10)
                     {
                         //Console.WriteLine("X: {0}, Y: {1}, W: {2}, H: {3}", rect.X, rect.Y,rect.Width,rect.Height);
-                        CvInvoke.Rectangle(colorImage, rect, new MCvScalar(255, 0, 0),1);
+                        CvInvoke.Rectangle(colorImage, rect, new MCvScalar(0, 0, 255),1);
                         listRect.Add(rect);                      
                     }                                   
                 }
             }
             //Lọc và sắp xếp các Rectangle
             ///Xác định dòng 1, dòng 2 của biển
-            string NumberPlate = "";
             List<Rectangle> up = new List<Rectangle>();
             List<Rectangle> dow = new List<Rectangle>();
             int up_y = 0, dow_y = 0;
@@ -209,6 +197,71 @@ namespace Vietnamese_License_Plate_Recognition
                     }
                 }
             }
+            string textPlates = "";
+            for (int i = 0; i < up.Count; i++)
+            {
+                Image<Gray, byte> imageCrop = new Image<Gray, byte>(imageThresh.Bitmap);
+                imageCrop.ROI = up[i];
+                imageCrop = imageCrop.Dilate(1);
+                Image<Bgr, Byte> imgResize = new Image<Bgr, Byte>(imageCrop.Width * 9, imageCrop.Height * 5, new Bgr(255, 255, 255));
+                using (Graphics g = Graphics.FromImage(imgResize.Bitmap))
+                {
+                    g.DrawImage(imageCrop.Resize(25, 50, Inter.Cubic, preserveScale: true).Bitmap, imageCrop.Width * 4, imageCrop.Height * 2);
+                }
+                string temp;
+                if (i<2)
+                {
+                    CvInvoke.Imshow("Numbers Plates(i<2)", imgResize);
+                    CvInvoke.WaitKey(0);
+                    temp = OCR(imgResize.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, true);
+                    Console.WriteLine(temp);
+                }
+                else if (i==2)
+                {
+                    CvInvoke.Imshow("Numbers Plates(i==3)", imgResize);
+                    CvInvoke.WaitKey(0);
+                    temp = OCR(imgResize.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, false);
+                    Console.WriteLine(temp);
+                }    
+                else
+                {
+                    CvInvoke.Imshow("Numbers Plates(i>3)", imgResize);
+                    CvInvoke.WaitKey(0);
+                    temp = OCR(imgResize.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, true);
+                    Console.WriteLine(temp);
+                }
+                textPlates += temp;
+                //Image<Gray, byte> resizedImage = imageCrop.Resize(50, 90, Inter.Linear);
+                //Image<Bgr, Byte> imgResize = new Image<Bgr, Byte>(imageCrop.Width * 5, imageCrop.Height * 2, new Bgr(255, 255, 255));
+                //using (Graphics g = Graphics.FromImage(imgResize.Bitmap))
+                //{
+                //    g.DrawImage(imageCrop.Resize(20, 20, Inter.Cubic, preserveScale: true).Bitmap, imageCrop.Width * 2, imageCrop.Height / 2); ;
+                //}
+                //Image<Gray, byte> imageTest = new Image<Gray, byte>(imgResize.Width, imgResize.Height);
+                //CvInvoke.AdaptiveThreshold(imgResize.Convert<Gray, byte>(), imageTest, 255.0, AdaptiveThresholdType.MeanC, ThresholdType.BinaryInv, 21, 2);
+                //Console.WriteLine(t);
+                //Mat imgCropResize = imgResize.Mat;
+                //CvInvoke.Imshow("Numbers Plates", imageCrop);
+                //Console.WriteLine("W: {0}, H: {1}", imgResize.Width, imgResize.Height);
+                //CvInvoke.WaitKey(0);
+            }
+            textPlates += "\r\n";
+            for (int i=0; i<dow.Count; i++)
+            {
+                Image<Gray, byte> imageCrop = new Image<Gray, byte>(imageThresh.Bitmap);
+                imageCrop.ROI = dow[i];
+                imageCrop = imageCrop.Dilate(1);
+                Image<Bgr, Byte> imgResize = new Image<Bgr, Byte>(imageCrop.Width * 9, imageCrop.Height * 5, new Bgr(255, 255, 255));
+                using (Graphics g = Graphics.FromImage(imgResize.Bitmap))
+                {
+                    g.DrawImage(imageCrop.Resize(25, 50, Inter.Cubic, preserveScale: true).Bitmap, imageCrop.Width *4, imageCrop.Height *2);
+                }
+                CvInvoke.Imshow("Numbers Plates(imgD)", imgResize);
+                CvInvoke.WaitKey(0);
+                string temp = OCR(imgResize.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, true);
+                Console.WriteLine(temp);
+                textPlates += temp;
+            }    
             //Crop ảnh và hiển thị ra pictureBox
             var cropUp = cutPlates(up,out double chenhlech);
             var cropDow = cutPlates(dow, out double chechlech);
@@ -238,8 +291,8 @@ namespace Vietnamese_License_Plate_Recognition
             pictureBox4.Image = imgU.Bitmap;
             pictureBox5.Image = imgD.Bitmap;
             pictureBox2.Image = colorImage.Bitmap;
-            NumberPlate = OCR(imgU.Bitmap) + "\r\n" + OCR(imgD.Bitmap);
-            textBox1.Text = NumberPlate.ToString();
+            //NumberPlate = OCR(imgU.Bitmap,true,full_tesseract,num_tesseract, word_tesseract, false) + "\r\n" + OCR(imgD.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, true);
+            textBox1.Text = textPlates;
         }
         public static Bitmap rotateImage(Bitmap b, double angle)
         {
