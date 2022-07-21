@@ -17,6 +17,7 @@ namespace Vietnamese_License_Plate_Recognition
 {
     public partial class Form1 : Form
     {
+
         List<Image<Bgr, Byte>> PlateImagesList = new List<Image<Bgr, byte>>();
         public Form1()
         {
