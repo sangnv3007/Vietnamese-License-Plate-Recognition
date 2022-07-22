@@ -94,8 +94,8 @@ namespace Vietnamese_License_Plate_Recognition
         }
         public static string OCR(Bitmap image, bool isFull, TesseractEngine full_tesseract, TesseractEngine num_tesseract, TesseractEngine word_tesseract, bool isNum = false)
         {
-            full_tesseract.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789");
-            word_tesseract.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            full_tesseract.SetVariable("tessedit_char_whitelist", "ABCDEFGHKLMNPQRSTUVWXYZ123456789");
+            word_tesseract.SetVariable("tessedit_char_whitelist", "ABCDEFGHKLMNPQRSTUVWXYZ");
             num_tesseract.SetVariable("tessedit_char_whitelist", "0123456789");
             TesseractEngine tesseractProcessor = isFull ? full_tesseract : ((isNum) ? num_tesseract : word_tesseract);
             var page = tesseractProcessor.Process(image, PageSegMode.SingleChar);
@@ -202,34 +202,35 @@ namespace Vietnamese_License_Plate_Recognition
             for (int i = 0; i < up.Count; i++)
             {
                 Image<Gray, byte> imageCrop = new Image<Gray, byte>(imageThresh.Bitmap);
-                imageCrop.ROI = up[i];
-                imageCrop = imageCrop.Dilate(1);
-                Image<Bgr, Byte> imgResize = new Image<Bgr, Byte>(imageCrop.Width * 9, imageCrop.Height * 5, new Bgr(255, 255, 255));
+                imageCrop.ROI = up[i];               
+                imageCrop = imageCrop.Dilate(2);
+                imageCrop = imageCrop.Erode(2);
+                Image<Bgr, Byte> imgResize = new Image<Bgr, Byte>(imageCrop.Width * 2, imageCrop.Height * 2, new Bgr(255, 255, 255));
                 using (Graphics g = Graphics.FromImage(imgResize.Bitmap))
                 {
-                    g.DrawImage(imageCrop.Resize(25, 50, Inter.Cubic, preserveScale: true).Bitmap, imageCrop.Width * 4, imageCrop.Height * 2);
+                    g.DrawImage(imageCrop.Bitmap, imageCrop.Width / 2, imageCrop.Height / 2);
                 }
                 string temp;
-                if (i<2)
+                if (i < 2)
                 {
-                    CvInvoke.Imshow("Numbers Plates(i<2)", imgResize);
-                    CvInvoke.WaitKey(0);
+                    //CvInvoke.Imshow("Numbers Plates(i<2)", imgResize);
+                    //CvInvoke.WaitKey(0);
                     temp = OCR(imgResize.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, true);
-                    Console.WriteLine(temp);
+                    //Console.WriteLine(temp);
                 }
-                else if (i==2)
+                else if (i == 2)
                 {
-                    CvInvoke.Imshow("Numbers Plates(i==3)", imgResize);
-                    CvInvoke.WaitKey(0);
+                    //CvInvoke.Imshow("Numbers Plates(i==3)", imgResize);
+                    //CvInvoke.WaitKey(0);
                     temp = OCR(imgResize.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, false);
-                    Console.WriteLine(temp);
-                }    
+                    //Console.WriteLine(temp);
+                }
                 else
                 {
-                    CvInvoke.Imshow("Numbers Plates(i>3)", imgResize);
-                    CvInvoke.WaitKey(0);
-                    temp = OCR(imgResize.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, true);
-                    Console.WriteLine(temp);
+                    //CvInvoke.Imshow("Numbers Plates(i>3)", imgResize);
+                    //CvInvoke.WaitKey(0);
+                    temp = OCR(imgResize.Bitmap, true, full_tesseract, num_tesseract, word_tesseract, false);
+                    //Console.WriteLine(temp);
                 }
                 textPlates += temp;
                 //Image<Gray, byte> resizedImage = imageCrop.Resize(50, 90, Inter.Linear);
@@ -247,22 +248,24 @@ namespace Vietnamese_License_Plate_Recognition
                 //CvInvoke.WaitKey(0);
             }
             textPlates += "\r\n";
-            for (int i=0; i<dow.Count; i++)
+            for (int i = 0; i < dow.Count; i++)
             {
                 Image<Gray, byte> imageCrop = new Image<Gray, byte>(imageThresh.Bitmap);
                 imageCrop.ROI = dow[i];
-                imageCrop = imageCrop.Dilate(1);
-                Image<Bgr, Byte> imgResize = new Image<Bgr, Byte>(imageCrop.Width * 9, imageCrop.Height * 5, new Bgr(255, 255, 255));
+                imageCrop = imageCrop.Dilate(2);
+                imageCrop = imageCrop.Erode(2);
+                //imageCrop = imageCrop.Dilate(1);
+                Image<Bgr, Byte> imgResize = new Image<Bgr, Byte>(imageCrop.Width * 2, imageCrop.Height * 2, new Bgr(255, 255, 255));
                 using (Graphics g = Graphics.FromImage(imgResize.Bitmap))
                 {
-                    g.DrawImage(imageCrop.Resize(25, 50, Inter.Cubic, preserveScale: true).Bitmap, imageCrop.Width *4, imageCrop.Height *2);
+                    g.DrawImage(imageCrop.Bitmap, imageCrop.Width / 2, imageCrop.Height / 2);
                 }
-                CvInvoke.Imshow("Numbers Plates(imgD)", imgResize);
-                CvInvoke.WaitKey(0);
+                //CvInvoke.Imshow("Numbers Plates(imgD)", imgResize);
+                //CvInvoke.WaitKey(0);
                 string temp = OCR(imgResize.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, true);
-                Console.WriteLine(temp);
+                //Console.WriteLine(temp);
                 textPlates += temp;
-            }    
+            }
             //Crop ảnh và hiển thị ra pictureBox
             var cropUp = cutPlates(up,out double chenhlech);
             var cropDow = cutPlates(dow, out double chechlech);
@@ -292,7 +295,7 @@ namespace Vietnamese_License_Plate_Recognition
             pictureBox4.Image = imgU.Bitmap;
             pictureBox5.Image = imgD.Bitmap;
             pictureBox2.Image = colorImage.Bitmap;
-            //NumberPlate = OCR(imgU.Bitmap,true,full_tesseract,num_tesseract, word_tesseract, false) + "\r\n" + OCR(imgD.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, true);
+            //string NumberPlate = OCR(imgU.Bitmap,true,full_tesseract,num_tesseract, word_tesseract, false) + "\r\n" + OCR(imgD.Bitmap, false, full_tesseract, num_tesseract, word_tesseract, true);
             textBox1.Text = textPlates;
         }
         public static Bitmap rotateImage(Bitmap b, double angle)
