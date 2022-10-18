@@ -8,7 +8,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Hello": "Tan Dan JSC"}
 
 
 @app.post("/LicencePlate/upload")
@@ -25,8 +25,7 @@ def upload(file: UploadFile = File(...)):
         obj = ReturnInfoLP(f'anhtoancanh/{file.filename}')
         if (obj.errorCode ==0):
             return {"errorCode": obj.errorCode, "errorMessage": obj.errorMessage,
-            "data": [{"textPlate": obj.textPlate, "accPlate": obj.accPlate, "imagePlate": obj.imagePlate}]
-            }
+            "data": [{"textPlate": obj.textPlate, "accPlate": obj.accPlate, "imagePlate": obj.imagePlate}]}
         else:
             return {"errorCode": obj.errorCode, "message": obj.errorMessage, "data": []}
     except Exception:
