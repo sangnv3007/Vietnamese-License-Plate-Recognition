@@ -14,22 +14,21 @@ def read_root():
 @app.post("/LicencePlate/upload")
 def upload(file: UploadFile = File(...)):
     try:
-        contents = file.file.read()
-        f = open(file.filename, 'wb')
-        f.write(contents)
-        # pathSave = os.getcwd() + '\\imagePlate'
-        # if (os.path.exists(pathSave)):
-        #     imgName = file.filename + '_'+str(time.time())+'.jpg'
-        #     shutil.copyfile(file.filename, pathSave+"\\" + imgName)
-        # else:
-        #     os.mkdir(pathSave)
-        #     imgName = file.filename + '_'+str(time.time())+'.jpg'
-        #     shutil.copyfile(file.filename, pathSave+"\\" + imgName)
-        obj = ReturnInfoLP(file.filename)
-        if (obj.status == "successful"):
-            return {"textPlate": obj.textPlate, "accPlate": obj.accPlate, "imagePlate": obj.imagePlate, "status": obj.status, "message": obj.message}
+        pathSave = os.getcwd() + '\\anhtoancanh'
+        if (os.path.exists(pathSave)):
+            with open(f'anhtoancanh/{file.filename}','wb') as buffer:
+                shutil.copyfileobj(file.file, buffer)
         else:
-            return {"status": obj.status, "message": obj.message}
+            os.mkdir(pathSave)
+            with open(f'anhtoancanh/{file.filename}','wb') as buffer:
+                shutil.copyfileobj(file.file, buffer)
+        obj = ReturnInfoLP(f'anhtoancanh/{file.filename}')
+        if (obj.errorCode ==0):
+            return {"errorCode": obj.errorCode, "errorMessage": obj.errorMessage,
+            "data": [{"textPlate": obj.textPlate, "accPlate": obj.accPlate, "imagePlate": obj.imagePlate}]
+            }
+        else:
+            return {"errorCode": obj.errorCode, "message": obj.errorMessage, "data": []}
     except Exception:
         return {"message": "There was an error uploading the file"}
     finally:

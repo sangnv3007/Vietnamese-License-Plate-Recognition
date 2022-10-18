@@ -112,7 +112,7 @@ def getIndices(image, net):
 def ReturnInfoLP(path):
     typeimage = check_type_image(path) 
     if(typeimage!='png' and typeimage!='jpeg' and typeimage!='jpg' and typeimage != 'bmp'):
-        obj = MessageInfo('failed', 'Wrong image format! Please try again.')
+        obj = MessageInfo(1, 'Invalid image file! Please try again.')
         return obj
     else:
         image = cv2.imread(path)
@@ -156,18 +156,18 @@ def ReturnInfoLP(path):
                         if (isValidPlatesNumber(textBlockPlate)):
                             arrayResult.append(textBlockPlate)
                     if (len(arrayResult) != 0):
-                        status_text = "successful"
-                        message_text = "Thành công"
+                        errorCode = 0
+                        message = ""
                         textPlates = "-".join(arrayResult)
-                        obj = ExtractLP(textPlates, min(scores), stringImage, status_text, message_text)
+                        obj = ExtractLP(textPlates, min(scores), stringImage, errorCode, message)
                     else:
-                        obj = ExtractLP('Null', 0, stringImage, 'failed', 'Bad photo quality. Please try image again !')
+                        obj = ExtractLP('', 0, stringImage, 2, 'The photo license plate is low. Please try the image again!')
             if(obj != None): return obj
             else: 
-                obj = MessageInfo("failed", "Bad photo quality. Please try image again !")
+                obj = MessageInfo(3, "The photo quality is low. Please try the image again!")
                 return obj
         else:
-            obj = MessageInfo("failed", "Error! License Plate not found !")
+            obj = MessageInfo(4, "Error! License Plate not found !")
             return obj
 
 
@@ -175,14 +175,13 @@ net, ocr = load_model()
 
 
 class ExtractLP:
-    def __init__(self, textPlate, accPlate, imagePlate, status, message):
+    def __init__(self, textPlate, accPlate, imagePlate, errorCode, errorMessage):
         self.textPlate = textPlate
         self.accPlate = accPlate
         self.imagePlate = imagePlate
-        self.status = status
-        self.message = message
-
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
 class MessageInfo:
-    def __init__(self, status, message):
-        self.status = status
-        self.message = message
+    def __init__(self, errorCode, errorMessage):
+        self.errorCode = errorCode
+        self.errorMessage = errorMessage
