@@ -7,6 +7,8 @@ import re
 from paddleocr import PaddleOCR
 # Funtions
 # Ham check dinh dang dau vao cua anh
+
+
 def check_type_image(path):
     imgName = str(path)
     imgName = imgName[imgName.rindex('.')+1:]
@@ -23,13 +25,13 @@ def draw_prediction(img, classes, confidence, x, y, x_plus_w, y_plus_h):
 # Ham resize anh aspect ratio
 
 
-def resize_image(imageOriginal, width=0, height=0):
+def resize_image(imageOriginal, width=None, height=None, inter = cv2.INTER_AREA):
     w, h = imageOriginal.shape[1], imageOriginal.shape[0]
-    new_w = 0
-    new_h = 0
-    if (width == 0 and height == 0):
+    new_w = None
+    new_h = None
+    if (width == None and height == None):
         return imageOriginal
-    if (width == 0):
+    if (width == None):
         r = height / float(h)
         new_w = int(w * r)
         new_h = height
@@ -38,7 +40,7 @@ def resize_image(imageOriginal, width=0, height=0):
         new_w = width
         new_h = int(h * r)
     new_img = cv2.resize(imageOriginal, (new_w, new_h),
-                         interpolation=cv2.INTER_CUBIC)
+                         interpolation=inter)
     return new_img
 # Ham get output_layer
 
@@ -64,10 +66,8 @@ def isValidPlatesNumber(inputBlock):
 def load_model():
     net = cv2.dnn.readNet('./model/det/yolov4-tiny-custom_det.weights',
                           './model/det/yolov4-tiny-custom_det.cfg')
-    ocr = PaddleOCR(det_model_dir='./model/ch_ppocr_server_v2.0_det_infer/', rec_model_dir='./model/ch_ppocr_server_v2.0_rec_infer/',
-                    rec_char_dict_path='./model/en_dict.txt', use_angle_cls=False)
-    #classes = ['LP']
-    # return net, classes
+    ocr = PaddleOCR(det_model_dir='./model/en/ch_PP-OCRv3_det_infer/', rec_model_dir='./model/en/ch_ppocr_server_v2.0_rec_infer/',
+                    rec_char_dict_path='./model/en/en_dict.txt', use_angle_cls=False)
     return net, ocr
 # Ham getIndices
 
@@ -110,8 +110,8 @@ def getIndices(image, net):
 
 
 def ReturnInfoLP(path):
-    typeimage = check_type_image(path) 
-    if(typeimage!='png' and typeimage!='jpeg' and typeimage!='jpg' and typeimage != 'bmp'):
+    typeimage = check_type_image(path)
+    if (typeimage != 'png' and typeimage != 'jpeg' and typeimage != 'jpg' and typeimage != 'bmp'):
         obj = MessageInfo(1, 'Invalid image file! Please try again.')
         return obj
     else:
@@ -132,7 +132,7 @@ def ReturnInfoLP(path):
                 w = box[2]
                 h = box[3]
                 src = image[round(y): round(y + h), round(x):round(x + w)]
-                #Luu lai anh bien so
+                # Luu lai anh bien so
                 pathSave = os.getcwd() + '\\anhbienso\\'
                 stringImage = "bienso" + '_' + str(time.time()) + ".jpg"
                 if (os.path.exists(pathSave)):
@@ -141,30 +141,36 @@ def ReturnInfoLP(path):
                     os.mkdir(pathSave)
                     cv2.imwrite(pathSave + stringImage, src)
                 #Resize anh de recognition
-                imageCrop = resize_image(src, 900)
-                #Check ket qua nhan dang
-                ocrResult = ocr.ocr(imageCrop, cls=False)
+                imageCrop = resize_image(src, width=192)
+                # Check ket qua nhan dang
+                #print('Width: {0}, Height: {1}'.format(imageCrop.shape[1], imageCrop.shape[0]))
+                ocrResult = ocr.ocr(src, cls=False)
                 textBlocks = [line[1][0] for line in ocrResult]
                 scores = [line[1][1] for line in ocrResult]
                 txts = "".join(textBlocks)
                 arrayResult = []
-                
+
                 if (len(txts) > len(tempOCRResult) and len(txts) > 0 and len(txts) <= 12):
                     tempOCRResult = txts
                     for textBlock in textBlocks:
-                        textBlockPlate = re.sub("[^A-Z0-9\-]|^-|-$", "", textBlock)
+                        textBlockPlate = re.sub(
+                            "[^A-Z0-9\-]|^-|-$", "", textBlock)
                         if (isValidPlatesNumber(textBlockPlate)):
                             arrayResult.append(textBlockPlate)
                     if (len(arrayResult) != 0):
                         errorCode = 0
                         message = ""
                         textPlates = "-".join(arrayResult)
-                        obj = ExtractLP(textPlates, min(scores), stringImage, errorCode, message)
+                        obj = ExtractLP(textPlates, min(scores),
+                                        stringImage, errorCode, message)
                     else:
-                        obj = ExtractLP('', 0, stringImage, 2, 'The photo license plate is low. Please try the image again!')
-            if(obj != None): return obj
-            else: 
-                obj = MessageInfo(3, "The photo quality is low. Please try the image again!")
+                        obj = ExtractLP(
+                            '', 0, stringImage, 2, 'The photo license plate is low. Please try the image again!')
+            if (obj != None):
+                return obj
+            else:
+                obj = MessageInfo(
+                    3, "The photo quality is low. Please try the image again!")
                 return obj
         else:
             obj = MessageInfo(4, "Error! License Plate not found !")
@@ -181,6 +187,8 @@ class ExtractLP:
         self.imagePlate = imagePlate
         self.errorCode = errorCode
         self.errorMessage = errorMessage
+
+
 class MessageInfo:
     def __init__(self, errorCode, errorMessage):
         self.errorCode = errorCode
