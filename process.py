@@ -54,7 +54,7 @@ def get_output_layers(net):
 
 
 def isValidPlatesNumber(inputBlock):
-    strRegex = "(^[0-9]{2}-?[0-9A-Z]{1,3}$)|(^[A-Z0-9]{2,5}$)|(^[0-9]{2,3}-[0,9]{2}$)|(^[A-Z0-9]{2,3}-?[0-9]{4,5}$)|(^[A-Z]{2}-?[0-9]{0,4}$)|(^[0-9]{2}-?[A-Z0-9]{2,3}-?[A-Z0-9]{2,3}-?[0-9]{2}$)|(^[A-Z]{2}-?[0-9]{2}-?[0-9]{2}$)|(^[0-9]{3}-?[A-Z0-9]{2}$)"
+    strRegex = "(^[A-Z0-9]{2}-?[A-Z0-9]{1,3}-?[A-Z0-9]{1,2}$)|(^[A-Z0-9]{2,5}$)|(^[0-9]{2,3}-[0,9]{2}$)|(^[A-Z0-9]{2,3}-?[0-9]{4,5}$)|(^[A-Z]{2}-?[0-9]{0,4}$)|(^[0-9]{2}-?[A-Z0-9]{2,3}-?[A-Z0-9]{2,3}-?[0-9]{2}$)|(^[A-Z]{2}-?[0-9]{2}-?[0-9]{2}$)|(^[0-9]{3}-?[A-Z0-9]{2}$)"
     pat = re.compile(strRegex)
     if (re.fullmatch(pat, inputBlock)):
         return True
@@ -64,8 +64,8 @@ def isValidPlatesNumber(inputBlock):
 
 
 def load_model():
-    net = cv2.dnn.readNet('./model/det/yolov4-tiny-custom_det.weights',
-                          './model/det/yolov4-tiny-custom_det.cfg')
+    net = cv2.dnn.readNet('./model/det/yolov4-tiny-custom_final.weights',
+                          './model/det/yolov4-tiny-custom.cfg')
     ocr = PaddleOCR(det_model_dir='./model/en/ch_PP-OCRv3_det_infer/', rec_model_dir='./model/en/ch_ppocr_server_v2.0_rec_infer/',
                     rec_char_dict_path='./model/en/en_dict.txt', use_angle_cls=False)
     return net, ocr
@@ -141,7 +141,7 @@ def ReturnInfoLP(path):
                     os.mkdir(pathSave)
                     cv2.imwrite(pathSave + stringImage, src)
                 #Resize anh de recognition
-                imageCrop = resize_image(src, width=192)
+                imageCrop = resize_image(src, width=250)
                 # Check ket qua nhan dang
                 #print('Width: {0}, Height: {1}'.format(imageCrop.shape[1], imageCrop.shape[0]))
                 ocrResult = ocr.ocr(src, cls=False)
