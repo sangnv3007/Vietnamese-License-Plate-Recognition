@@ -4,17 +4,8 @@
 Download folder [model](https://drive.google.com/drive/folders/1V6_qUQH35v6hzVeZ9JCSn50FGAS0DaxA?usp=sharing), unzip and copy to project run directory:
 ```
 model
-└───en_dict.txt
-│     
-└───ch_ppocr_mobile_v2.0_cls_infer
-│   └── [...]
-│   
-└───ch_ppocr_server_v2.0_det_infer
-|   └── [...]
-│
-└───ch_ppocr_server_v2.0_rec_infer
+└───en
 |   └── [...] 
-|
 └───det
     └── [...] 
 ```
