@@ -25,7 +25,7 @@ def draw_prediction(img, classes, confidence, x, y, x_plus_w, y_plus_h):
 # Ham resize anh aspect ratio
 
 
-def resize_image(imageOriginal, width=None, height=None, inter = cv2.INTER_AREA):
+def resize_image(imageOriginal, width=None, height=None, inter=cv2.INTER_AREA):
     w, h = imageOriginal.shape[1], imageOriginal.shape[0]
     new_w = None
     new_h = None
@@ -140,11 +140,11 @@ def ReturnInfoLP(path):
                 else:
                     os.mkdir(pathSave)
                     cv2.imwrite(pathSave + stringImage, src)
-                #Resize anh de recognition
+                # Resize anh de recognition
                 imageCrop = resize_image(src, width=250)
                 # Check ket qua nhan dang
                 #print('Width: {0}, Height: {1}'.format(imageCrop.shape[1], imageCrop.shape[0]))
-                ocrResult = ocr.ocr(src, cls=False)
+                ocrResult = ocr.ocr(imageCrop, cls=False)
                 textBlocks = [line[1][0] for line in ocrResult]
                 scores = [line[1][1] for line in ocrResult]
                 txts = "".join(textBlocks)
