@@ -4,6 +4,7 @@ import os
 import time
 import shutil
 from typing import List
+import uvicorn
 from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
@@ -24,22 +25,22 @@ class LimitUploadSize(BaseHTTPMiddleware):
                 return Response(status_code=status.HTTP_431_REQUEST_HEADER_FIELDS_TOO_LARGE)
         return await call_next(request)
 app = FastAPI()
-app.add_middleware(LimitUploadSize, max_upload_size=10000000)  # ~10
+app.add_middleware(LimitUploadSize, max_upload_size=10000000)  # ~10MB
 @app.get("/")
 def read_root():
     return {"Hello": "Tan Dan JSC"}
 @app.post("/LicencePlate/UploadingSingleFile")
 def UploadingSingleFile(file: UploadFile = File(...)):
     try:
-        pathSave = os.getcwd() +'\\'+  'anhtoancanh'
+        pathSave = os.getcwd() +'/'+  'anhtoancanh'
         if (os.path.exists(pathSave)):
-            with open(f'anhtoancanh\\{file.filename}','wb') as f:
+            with open(f'anhtoancanh/{file.filename}','wb') as f:
                 f.write(file.file.read())
         else:
             os.mkdir(pathSave)
-            with open(f'anhtoancanh\\{file.filename}','wb') as f:
+            with open(f'anhtoancanh/{file.filename}','wb') as f:
                 f.write(file.file.read())
-        obj = ReturnInfoLP(f'anhtoancanh\\{file.filename}')
+        obj = ReturnInfoLP(f'anhtoancanh/{file.filename}')
         if (obj.errorCode ==0):
             return {"errorCode": obj.errorCode, "errorMessage": obj.errorMessage,
             "data": [{"textPlate": obj.textPlate, "accPlate": obj.accPlate, "imagePlate": obj.imagePlate}]}
@@ -52,22 +53,22 @@ def UploadingSingleFile(file: UploadFile = File(...)):
     return {"message": f"Successfuly uploaded {file.filename}"}
 @app.post("/LicencePlate/UploadingMultipleFiles")
 def UploadingMultipleFiles(files: List[UploadFile]):
-    pathSave = os.getcwd() +'\\'+ 'anhtoancanh'
+    pathSave = os.getcwd() +'/'+ 'anhtoancanh'
     if (os.path.exists(pathSave)):
         for file in files:
-            with open(f'anhtoancanh\\{file.filename}','wb') as f:
+            with open(f'anhtoancanh/{file.filename}','wb') as f:
                 f.write(file.file.read())
     else:
         os.mkdir(pathSave)
         for file in files:
-            with open(f'anhtoancanh\\{file.filename}','wb') as f:
+            with open(f'anhtoancanh/{file.filename}','wb') as f:
                 f.write(file.file.read())
     dict_values = {}
     for file in files:
-        obj = ReturnInfoLP(f'anhtoancanh\\{file.filename}')
+        obj = ReturnInfoLP(f'anhtoancanh/{file.filename}')
         if (obj.errorCode ==0):
             dict_values.update({file.filename:{"errorCode": obj.errorCode, "errorMessage": obj.errorMessage,
-            "data": [{"textPlate": obj.textPlate, "accPlate": obj.accPlate, "imagePlate": 'anhbienso\\'+obj.imagePlate}]}})
+            "data": [{"textPlate": obj.textPlate, "accPlate": obj.accPlate, "imagePlate": 'anhbienso/'+obj.imagePlate}]}})
         else:
             dict_values.update({file.filename:{"errorCode": obj.errorCode, "errorMessage": obj.errorMessage,"data": []}})
         file.file.close()
@@ -75,27 +76,28 @@ def UploadingMultipleFiles(files: List[UploadFile]):
 @app.post("/LicencePlate/UploadingZipFile")
 def UploadingZipFile(file: UploadFile = File(...)):
     dict_values = {}
-    pathSave = os.getcwd() +'\\'+  'anhtoancanh'
+    pathSave = os.getcwd() +'/'+  'anhtoancanh'
     if(check_type_image(file.filename) != 'zip'):
         return {file.filename:{"errorCode": 1, "errorMessage": "Invalid .zip file! Please try again.", "data": []}}
     else:
         if (os.path.exists(pathSave)):
-            with open(f'anhtoancanh\\{file.filename}','wb') as f:
+            with open(f'anhtoancanh/{file.filename}','wb') as f:
                 f.write(file.file.read())
         else:
             os.mkdir(pathSave)
-            with open(f'anhtoancanh\\{file.filename}','wb') as f:
+            with open(f'anhtoancanh/{file.filename}','wb') as f:
                 f.write(file.file.read())
-        with ZipFile(f'anhtoancanh\\{file.filename}', 'r') as zipObj:
+        with ZipFile(f'anhtoancanh/{file.filename}', 'r') as zipObj:
             zipObj.extractall('anhtoancanh')
             # Get list of files names in zip
             listOfiles = zipObj.namelist()
-            print(listOfiles)
             for namefile in listOfiles:
-                obj = ReturnInfoLP(f'anhtoancanh\\{namefile}')
+                obj = ReturnInfoLP(f'anhtoancanh/{namefile}')
                 if (obj.errorCode ==0):
                     dict_values.update({namefile:{"errorCode": obj.errorCode, "errorMessage": obj.errorMessage,
-                    "data": [{"textPlate": obj.textPlate, "accPlate": obj.accPlate, "imagePlate": 'anhbienso\\'+obj.imagePlate}]}})
+                    "data": [{"textPlate": obj.textPlate, "accPlate": obj.accPlate, "imagePlate": 'anhbienso/'+obj.imagePlate}]}})
                 else:
                     dict_values.update({namefile:{"errorCode": obj.errorCode, "errorMessage": obj.errorMessage,"data": []}})
             return dict_values
+if __name__ == "__main__":
+    uvicorn.run(app,host='192.168.2.167', port=8001)

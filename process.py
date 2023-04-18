@@ -64,7 +64,7 @@ def isValidPlatesNumber(inputBlock):
 
 
 def load_model():
-    net = cv2.dnn.readNet('./model/det/yolov4-tiny-custom_final.weights',
+    net = cv2.dnn.readNet('./model/det/yolov4-tiny-custom_last.weights',
                           './model/det/yolov4-tiny-custom.cfg')
     ocr = PaddleOCR(det_model_dir='./model/en/ch_PP-OCRv3_det_infer/', rec_model_dir='./model/en/ch_ppocr_server_v2.0_rec_infer/',
                     rec_char_dict_path='./model/en/en_dict.txt', use_angle_cls=False)
@@ -133,7 +133,7 @@ def ReturnInfoLP(path):
                 h = box[3]
                 src = image[round(y): round(y + h), round(x):round(x + w)]
                 # Luu lai anh bien so
-                pathSave = os.getcwd() + '\\anhbienso\\'
+                pathSave = os.getcwd() + '/anhbienso/'
                 stringImage = "bienso" + '_' + str(time.time()) + ".jpg"
                 if (os.path.exists(pathSave)):
                     cv2.imwrite(pathSave + stringImage, src)
@@ -141,10 +141,10 @@ def ReturnInfoLP(path):
                     os.mkdir(pathSave)
                     cv2.imwrite(pathSave + stringImage, src)
                 #Resize anh de recognition
-                imageCrop = resize_image(src, width=250)
+                imageCrop = resize_image(src, 250)
                 # Check ket qua nhan dang
                 #print('Width: {0}, Height: {1}'.format(imageCrop.shape[1], imageCrop.shape[0]))
-                ocrResult = ocr.ocr(src, cls=False)
+                ocrResult = ocr.ocr(imageCrop, cls=False)
                 textBlocks = [line[1][0] for line in ocrResult]
                 scores = [line[1][1] for line in ocrResult]
                 txts = "".join(textBlocks)
@@ -193,3 +193,6 @@ class MessageInfo:
     def __init__(self, errorCode, errorMessage):
         self.errorCode = errorCode
         self.errorMessage = errorMessage
+
+obj = ReturnInfoLP('/home/polaris/ml/Vietnamese-License-Plate-Recognition/ImageTest/5-8.jpg')
+print(obj.errorCode)
