@@ -25,7 +25,7 @@ def draw_prediction(img, classes, confidence, x, y, x_plus_w, y_plus_h):
 # Ham resize anh aspect ratio
 
 
-def resize_image(imageOriginal, width=None, height=None, inter = cv2.INTER_AREA):
+def resize_image(imageOriginal, width=None, height=None, inter=cv2.INTER_AREA):
     w, h = imageOriginal.shape[1], imageOriginal.shape[0]
     new_w = None
     new_h = None
