@@ -64,7 +64,7 @@ def isValidPlatesNumber(inputBlock):
 
 
 def load_model():
-    net = cv2.dnn.readNet('./model/det/yolov4-tiny-custom_last.weights',
+    net = cv2.dnn.readNet('./model/det/yolov4-tiny-custom_final.weights',
                           './model/det/yolov4-tiny-custom.cfg')
     ocr = PaddleOCR(det_model_dir='./model/en/ch_PP-OCRv3_det_infer/', rec_model_dir='./model/en/ch_ppocr_server_v2.0_rec_infer/',
                     rec_char_dict_path='./model/en/en_dict.txt', use_angle_cls=False)
@@ -145,8 +145,9 @@ def ReturnInfoLP(path):
                 # Check ket qua nhan dang
                 #print('Width: {0}, Height: {1}'.format(imageCrop.shape[1], imageCrop.shape[0]))
                 ocrResult = ocr.ocr(imageCrop, cls=False)
-                textBlocks = [line[1][0] for line in ocrResult]
-                scores = [line[1][1] for line in ocrResult]
+                result = ocrResult[0]
+                textBlocks = [line[1][0] for line in result]
+                scores = [line[1][1] for line in result]
                 txts = "".join(textBlocks)
                 arrayResult = []
 
@@ -195,4 +196,4 @@ class MessageInfo:
         self.errorMessage = errorMessage
 
 obj = ReturnInfoLP('/home/polaris/ml/Vietnamese-License-Plate-Recognition/ImageTest/5-8.jpg')
-print(obj.errorCode)
+print(obj.textPlate)
