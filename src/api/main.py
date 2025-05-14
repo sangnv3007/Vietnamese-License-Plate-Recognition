@@ -71,7 +71,7 @@ def read_root():
     """API endpoint chính"""
     return {"message": "Welcome to License Plate Recognition API"}
 
-@app.post("/api/v1/license-plate/single")
+@app.post("/LicencePlate/UploadingSingleFile")
 async def process_single_image(file: UploadFile = File(...)):
     """API xử lý một ảnh đơn"""
     try:
