@@ -3,6 +3,7 @@ import numpy as np
 import re
 import os
 import time
+import base64
 from typing import Tuple, List, Optional, Dict
 from dataclasses import dataclass
 from paddleocr import PaddleOCR
@@ -12,7 +13,7 @@ from src.utils.image_utils import ImageUtils
 class LicensePlateResult:
     text_plate: str
     confidence: float
-    image_name: str
+    image_base64: str
     error_code: int
     error_message: str
 
@@ -93,22 +94,16 @@ class LicensePlateDetector:
         ]
         return any(re.fullmatch(pattern, text) for pattern in patterns)
 
-    def process_image(self, image_path: str) -> LicensePlateResult:
-        """Xử lý ảnh và trả về kết quả nhận diện biển số"""
-        try:
-            # Kiểm tra file tồn tại
-            if not os.path.exists(image_path):
-                return LicensePlateResult('', 0, '', 1, f'Image file not found: {image_path}')
-                
-            # Kiểm tra định dạng ảnh
-            image_type = ImageUtils.check_image_type(image_path)
-            if image_type not in ['png', 'jpeg', 'jpg', 'bmp']:
-                return LicensePlateResult('', 0, '', 1, 'Invalid image file! Please try again.')
+    def _convert_to_base64(self, image: np.ndarray) -> str:
+        """Chuyển đổi ảnh numpy array sang base64 string"""
+        _, buffer = cv2.imencode('.jpg', image)
+        return base64.b64encode(buffer).decode('utf-8')
 
-            # Đọc và xử lý ảnh
-            image = cv2.imread(image_path)
+    def process_image_array(self, image: np.ndarray, filename: str) -> LicensePlateResult:
+        """Xử lý ảnh numpy array và trả về kết quả nhận diện biển số"""
+        try:
             if image is None or image.size == 0:
-                return LicensePlateResult('', 0, '', 1, f'Failed to read image: {image_path}')
+                return LicensePlateResult('', 0, '', 1, f'Invalid image data from file: {filename}')
 
             indices, boxes, image = self._detect_license_plate(image)
 
@@ -117,9 +112,6 @@ class LicensePlateDetector:
 
             best_result = LicensePlateResult('', 0, '', 2, 
                 'The photo license plate is low. Please try the image again!')
-
-            save_path = os.path.join(os.getcwd(), 'anhbienso')
-            os.makedirs(save_path, exist_ok=True)
 
             for i in indices:
                 box = boxes[i]
@@ -136,13 +128,9 @@ class LicensePlateDetector:
                 plate_region = image[y:y+h, x:x+w].copy()
                 if plate_region is None or plate_region.size == 0:
                     continue
-                
-                # Lưu ảnh biển số
-                image_name = f"bienso_{time.time()}.jpg"
-                save_file = os.path.join(save_path, image_name)
-                
-                if not cv2.imwrite(save_file, plate_region):
-                    continue
+
+                # Chuyển đổi vùng biển số sang base64
+                plate_base64 = self._convert_to_base64(plate_region)
 
                 # Nhận dạng text
                 plate_region = ImageUtils.resize_image(plate_region, width=250)
@@ -170,7 +158,7 @@ class LicensePlateDetector:
                     
                     if len(plate_text) > len(best_result.text_plate):
                         best_result = LicensePlateResult(
-                            plate_text, confidence, image_name, 0, "")
+                            plate_text, confidence, plate_base64, 0, "")
 
             return best_result
             

@@ -2,7 +2,9 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
 import os
-import shutil
+import io
+import cv2
+import numpy as np
 from zipfile import ZipFile
 import uvicorn
 import sys
@@ -34,20 +36,17 @@ detector = LicensePlateDetector(
 
 class FileProcessor:
     @staticmethod
-    def save_upload_file(upload_file: UploadFile, save_path: str) -> str:
-        """Lưu file upload vào thư mục"""
-        os.makedirs(save_path, exist_ok=True)
-        file_path = os.path.join(save_path, upload_file.filename)
-        
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(upload_file.file, buffer)
-            
-        return file_path
+    async def read_image_file(file: UploadFile) -> np.ndarray:
+        """Đọc file ảnh từ UploadFile thành numpy array"""
+        contents = await file.read()
+        nparr = np.frombuffer(contents, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        return img
 
     @staticmethod
-    def process_image_file(file_path: str) -> Dict[str, Any]:
-        """Xử lý một file ảnh"""
-        result = detector.process_image(file_path)
+    def process_image_array(image: np.ndarray, filename: str) -> Dict[str, Any]:
+        """Xử lý ảnh dạng numpy array"""
+        result = detector.process_image_array(image, filename)
         
         if result.error_code == 0:
             return {
@@ -56,7 +55,7 @@ class FileProcessor:
                 "data": [{
                     "textPlate": result.text_plate,
                     "accPlate": result.confidence,
-                    "imagePlate": f"anhbienso/{result.image_name}"
+                    "imagePlate": result.image_base64 # Trả về ảnh dạng base64 string
                 }]
             }
         else:
@@ -75,26 +74,25 @@ def read_root():
 async def process_single_image(file: UploadFile = File(...)):
     """API xử lý một ảnh đơn"""
     try:
-        save_path = os.path.join(os.getcwd(), 'anhtoancanh')
-        file_path = FileProcessor.save_upload_file(file, save_path)
-        return FileProcessor.process_image_file(file_path)
+        image = await FileProcessor.read_image_file(file)
+        if image is None:
+            raise HTTPException(status_code=400, detail="Could not read image file")
+        return FileProcessor.process_image_array(image, file.filename)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        file.file.close()
+        await file.close()
 
 @app.post("/api/v1/license-plate/multiple")
 async def process_multiple_images(files: List[UploadFile] = File(...)):
     """API xử lý nhiều ảnh"""
     try:
-        save_path = os.path.join(os.getcwd(), 'anhtoancanh')
         results = {}
-        
         for file in files:
-            file_path = FileProcessor.save_upload_file(file, save_path)
-            results[file.filename] = FileProcessor.process_image_file(file_path)
-            file.file.close()
-            
+            image = await FileProcessor.read_image_file(file)
+            if image is not None:
+                results[file.filename] = FileProcessor.process_image_array(image, file.filename)
+            await file.close()
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -112,22 +110,24 @@ async def process_zip_file(file: UploadFile = File(...)):
         }
 
     try:
-        save_path = os.path.join(os.getcwd(), 'anhtoancanh')
-        zip_path = FileProcessor.save_upload_file(file, save_path)
+        contents = await file.read()
+        zip_buffer = io.BytesIO(contents)
         results = {}
 
-        with ZipFile(zip_path, 'r') as zip_file:
-            zip_file.extractall(save_path)
-            
-            for image_name in zip_file.namelist():
-                image_path = os.path.join(save_path, image_name)
-                results[image_name] = FileProcessor.process_image_file(image_path)
+        with ZipFile(zip_buffer, 'r') as zip_file:
+            for filename in zip_file.namelist():
+                with zip_file.open(filename) as image_file:
+                    contents = image_file.read()
+                    nparr = np.frombuffer(contents, np.uint8)
+                    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                    if image is not None:
+                        results[filename] = FileProcessor.process_image_array(image, filename)
 
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        file.file.close()
+        await file.close()
 
 if __name__ == "__main__":
     uvicorn.run(
